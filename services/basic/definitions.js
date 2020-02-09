@@ -23,5 +23,5 @@ module.exports = function (word) {
             console.log('Found error:: ', err.message);
             console.log('Please try again.');
         }
-    )
+    );
 }
