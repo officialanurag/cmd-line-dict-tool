@@ -1,0 +1,23 @@
+{
+  "name": "cmd-line-dic-tool",
+  "version": "1.0.0",
+  "description": "Command line dictonary tool for word definitions, synonyms, antonyms, example, full dict, game.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/officialanurag/cmd-line-dict-tool.git"
+  },
+  "author": "Anurag Gupta [ (E)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/officialanurag/cmd-line-dict-tool/issues"
+  },
+  "homepage": "https://github.com/officialanurag/cmd-line-dict-tool#readme",
+  "dependencies": {
+    "request": "^2.88.0"
+  }
+}
