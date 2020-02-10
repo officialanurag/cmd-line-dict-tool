@@ -2,9 +2,9 @@
   "name": "cmd-line-dic-tool",
   "version": "1.0.0",
   "description": "Command line dictonary tool for word definitions, synonyms, antonyms, example, full dict, game.",
-  "main": "index.js",
+  "main": "dict.js",
   "scripts": {
-    "start": "node index.js",
+    "dict": "node dict.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
