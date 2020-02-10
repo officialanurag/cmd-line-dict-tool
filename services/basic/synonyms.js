@@ -4,20 +4,27 @@
  */
 
 const api = require('./../../api');
+const printConsole = require('./../../printConsole');
 
 module.exports = function (word) {
     api({ api: 'syn', word: word }).then(
         data => {
+            if (data.error) return console.log('-- Word not found!\n');
+
             if (Array.isArray(data)) {
-                data.forEach((elem) => {
-                    if (elem.relationshipType == 'synonym') {
-                        console.log(`Found ${elem.words.length} synonyms of ${word}: `);
-                        console.log('=============================================\n')
-                        elem.words.forEach((elem, index) => {
-                            console.log(`${index + 1}.`, elem);
-                        });
-                    }
-                });
+                let haveSynonym = [
+                    data[0] ? (data[0].relationshipType == 'synonym') : false, 
+                    data[1] ? (data[1].relationshipType == 'synonym') : false
+                ],
+                synData = data[haveSynonym.indexOf(true)];
+
+                if (haveSynonym.includes(true)) {
+                    console.log(`Found ${synData.words.length} synonyms of ${word}: `);
+                    console.log('=============================================\n');
+                    printConsole(synData, 'words');
+                } else {
+                    console.log(`-- No synonyms for word ${word}.`);
+                }
 
                 console.log('\n\n');
             }

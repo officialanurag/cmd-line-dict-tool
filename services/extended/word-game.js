@@ -4,7 +4,9 @@
  */
 
 const api = require('./../../api');
+const printConsole = require('./../../printConsole');
 const randomWord = require('./../basic/random-word');
+
 
 // Globals
 let CURRENT_DEF_INDEX = 0;
@@ -12,24 +14,27 @@ let CURRENT_SYN_INDEX = 0;
 let CURRENT_ANT_INDEX = 0;
 
 function getPuzzle (data) {
-    let puzzle = ['defn', 'syn', 'ant'];
+    let puzzle = ['defn', 'syn', 'ant'], text;
     let randomIndex = Math.floor(Math.random() * 3);
 
     let obj = {
         defn() {
-            CURRENT_DEF_INDEX = CURRENT_DEF_INDEX < data.defn.length ? CURRENT_DEF_INDEX++ : CURRENT_DEF_INDEX;
-            return `Definition: ${data.defn[CURRENT_DEF_INDEX].text}\n`;
+            text = `Definition: ${data.defn[CURRENT_DEF_INDEX].text}\n`;
+            CURRENT_DEF_INDEX = CURRENT_DEF_INDEX < data.defn.length ? CURRENT_DEF_INDEX + 1 : CURRENT_DEF_INDEX;
+            return text;
         },
         syn() {
-            CURRENT_SYN_INDEX = CURRENT_SYN_INDEX < data.syn.length ? CURRENT_SYN_INDEX++ : CURRENT_SYN_INDEX;
-            return `Synonym: ${data.syn[CURRENT_SYN_INDEX]}\n`;
+            text = `Synonym: ${data.syn[CURRENT_SYN_INDEX]}\n`;
+            CURRENT_SYN_INDEX = CURRENT_SYN_INDEX < data.syn.length ? CURRENT_SYN_INDEX + 1 : CURRENT_SYN_INDEX;
+            return text;
         },
         ant() {
-            if (data.ant[CURRENT_ANT_INDEX]) {
-                CURRENT_ANT_INDEX = CURRENT_ANT_INDEX < data.ant.length ? CURRENT_ANT_INDEX++ : CURRENT_ANT_INDEX;
-                return `Antonym: ${data.syn[CURRENT_ANT_INDEX]}\n`;
+            if (data.ant) {
+                text = `Antonym: ${data.syn[CURRENT_ANT_INDEX]}\n`;
+                CURRENT_ANT_INDEX = CURRENT_ANT_INDEX < data.ant.length ? CURRENT_ANT_INDEX + 1 : CURRENT_ANT_INDEX;
+                return text;
             } else {
-                this.syn();
+                return this.syn();
             }
             
         }
@@ -39,8 +44,6 @@ function getPuzzle (data) {
 }
 
 function ask (data) {
-    console.log(data.word, data.syn);
-
     console.log(`Word Game`);
     console.log('=========\n');
     console.log(`Guess the word:`);
@@ -49,10 +52,18 @@ function ask (data) {
     console.log('Enter input: ');
 }
 
+function jumbledWord (array) {
+    array.sort(() => Math.random() - 0.5);
+    return array;
+}
+
 function makeHint (data) {
+    let puzzle = ['jumble', 'ask'];
+    let hint = puzzle[Math.floor(Math.random() * 2)];
+    
     console.log('Hint:');
     console.log('=====\n');
-    console.log(getPuzzle(data));
+    console.log(hint == 'jumble' ? `Jumble Word: ${jumbledWord(data.word.split('')).join('')}\n` : getPuzzle(data));
     console.log('Enter input: ');
 }
 
@@ -91,10 +102,41 @@ function startGame (data) {
 
                     case '2':
                         makeHint(data);
+                        errorThrown = false;
                     break;
 
                     case '3':
-                        process.exit();
+                        console.log(`\n\nWord of day is ${data.word.toUpperCase()}.`);
+                        console.log('===========================\n\n')
+
+                        console.log(`Found ${data.defn.length} definitions of ${data.word}: `);
+                        console.log('=============================================\n');
+                        printConsole(data.defn, null, 'text');
+                        console.log('\n\n');
+
+                        console.log(`Found ${data.syn.length} synonyms of ${data.word}: `);
+                        console.log('=============================================\n');
+                        printConsole(data.syn);
+                        console.log('\n\n');
+
+                        if (data.ant) {
+                            console.log(`Found ${data.ant.length} antonyms of ${data.word}: `);
+                            console.log('=============================================\n');
+                            printConsole(data.ant);
+                        } else {
+                            console.log(`-- No antonyms for word ${data.word}.`);
+                        }
+                        console.log('\n\n');
+
+                        data.ex.then(
+                            exData => {
+                                console.log(`Found ${exData.examples.length} examples of ${data.word}: `);
+                                console.log('=============================================\n');
+                                printConsole(exData, 'examples', 'text');
+                                console.log('\n\n');
+                                process.exit();
+                            }
+                        )
                     break;
                 }
             }
@@ -111,6 +153,7 @@ module.exports = function () {
                 defn: api({ api: 'defn', word: word }),
                 syn: api({ api: 'syn', word: word }),
                 ant: api({ api: 'ant', word: word }),
+                ex: api({ api: 'ex', word: word })
             };
         }
     ).then(
@@ -121,8 +164,9 @@ module.exports = function () {
                     return {
                         word: data.word,
                         defn: defnData,
-                        syn: api({ api: 'syn', word: data.word }),
-                        ant: api({ api: 'ant', word: data.word }),
+                        syn: data.syn,
+                        ant: data.ant,
+                        ex: data.ex
                     }
                 }
             )
@@ -143,7 +187,8 @@ module.exports = function () {
                         word: data.word,
                         defn: data.defn,
                         syn: synWord,
-                        ant: api({ api: 'ant', word: data.word }),
+                        ant: data.ant,
+                        ex: data.ex
                     }
                 }
             )
@@ -165,6 +210,7 @@ module.exports = function () {
                         defn: data.defn,
                         syn: data.syn,
                         ant: antWord,
+                        ex: data.ex
                     }
                 }
             )

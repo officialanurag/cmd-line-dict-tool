@@ -4,17 +4,17 @@
  */
 
 const api = require('./../../api');
+const printConsole = require('./../../printConsole');
 
 module.exports = function (word) {
     api({ api: 'ex', word: word }).then(
         data => {
+            if (data.error) return console.log('-- Word not found!\n');
+            
             if (Array.isArray(data.examples)) {
                 console.log(`Found ${data.examples.length} examples of ${word}: `);
-                console.log('=============================================\n')
-                data.examples.forEach(function (elem, index) {
-                    console.log(`${index + 1}.`, elem.text);
-                })
-
+                console.log('=============================================\n');
+                printConsole(data, 'examples', 'text');
                 console.log('\n\n');
             }
         }

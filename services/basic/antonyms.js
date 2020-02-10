@@ -4,22 +4,29 @@
  */
 
 const api = require('./../../api');
+const printConsole = require('./../../printConsole');
 
 module.exports = function (word) {
     api({ api: 'ant', word: word }).then(
         data => {
-            if (Array.isArray(data)) {
-                data.forEach((elem) => {
-                    if (elem.relationshipType == 'antonym') {
-                        console.log(`Found ${elem.words.length} antonym of ${word}: `);
-                        console.log('=============================================\n')
-                        elem.words.forEach((elem, index) => {
-                            console.log(`${index + 1}.`, elem);
-                        });
-                    }
-                });
+            if (data.error) return console.log('-- Word not found!\n');
 
-                console.log('\n\n');
+            if (Array.isArray(data)) {
+                let haveAntonym = [
+                    data[0] ? (data[0].relationshipType == 'antonym') : false, 
+                    data[1] ? (data[1].relationshipType == 'antonym') : false
+                ],
+                antData = data[haveAntonym.indexOf(true)];
+
+                if (haveAntonym.includes(true)) {
+                    console.log(`Found ${antData.words.length} antonyms of ${word}: `);
+                    console.log('=============================================\n');
+                    printConsole(antData, 'words');
+                } else {
+                    console.log(`-- No antonyms for word ${word}.`);
+                }
+
+                console.log('\n');
             }
         }
     ).catch(
