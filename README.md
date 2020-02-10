@@ -3,7 +3,9 @@ Command line dictonary tool for words.
 
 ## Installation Steps
 `git clone https://github.com/officialanurag/cmd-line-dict-tool.git`
+
 `cd cmd-line-dict-tool`
+
 `npm install`
 
 ## How to use?
